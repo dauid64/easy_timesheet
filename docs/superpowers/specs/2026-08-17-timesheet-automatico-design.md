@@ -56,11 +56,24 @@ intervalos e agregados. Toda a lógica que pode contar hora errada mora ali, e
 2. **Sessionizer** (`ts-core`) converte amostras em intervalos. Fecha o
    intervalo quando o app ou título muda, quando o ocioso cruza o limiar, ou
    quando detecta suspensão da máquina.
-3. **Persistência**: intervalo fechado é gravado no SQLite. Apenas append.
-4. **Agregação**: o matcher classifica cada intervalo em um caso, agrupa por
-   caso e produz um rascunho de timesheet do dia.
-5. **Revisão**: o advogado corrige e aprova na UI.
-6. **Exportação**: os registros aprovados saem em CSV/planilha.
+3. **Matcher** classifica o intervalo fechado em um caso (regex CNJ + alias).
+4. **Redator** decide o que é persistível, aplicando a regra do navegador:
+   título de navegador sem match é descartado antes de tocar o disco.
+5. **Persistência**: intervalo gravado no SQLite. Apenas append.
+6. **Agregação**: agrupa os intervalos do dia por caso e produz o rascunho do
+   timesheet.
+7. **Revisão**: o advogado corrige e aprova na UI.
+8. **Exportação**: os registros aprovados saem em CSV/planilha.
+
+O matching acontece no fechamento do intervalo, **não** na agregação. Não é
+otimização: a regra do navegador exige saber se houve match antes de decidir se
+o título pode ser gravado, então o matcher precisa ter rodado antes da
+persistência. O custo é uma regex e uma busca de alias sobre uma string, uma vez
+por intervalo.
+
+Consequência aceita: atualizar a lista de casos não reclassifica intervalos de
+navegador antigos, porque o título já foi descartado. Para apps da allowlist o
+título permanece e a reclassificação funciona normalmente.
 
 ### Precisão temporal
 
@@ -201,9 +214,12 @@ CSV, sem atualizar o app.
 1. `ts-core`: sessionizer + testes (roda em macOS, sem dependência de SO)
 2. `ts-platform`: trait + implementação macOS — primeiro dado real
 3. `ts-platform`: implementação Windows — **antes** de storage
-4. `ts-storage`: schema, migrations, SQLCipher/DPAPI, retenção
-5. Matcher e agregação
+4. `ts-core`: matcher e agregação (volta para o Mac, sem dependência de SO)
+5. `ts-storage`: schema, migrations, SQLCipher/DPAPI, retenção
 6. `ts-app`: bandeja, pausa, tela de revisão, primeira execução, exportação
+
+O matcher vem antes do storage porque a regra do navegador faz a persistência
+depender do resultado do matching.
 
 O passo 3 vem cedo de propósito: é a única peça não testável na máquina de
 desenvolvimento, e descobrir no passo 6 que o trait não acomoda a API do
