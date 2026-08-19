@@ -1,1 +1,69 @@
+# Rust / Cargo
 /target
+**/target/
+*.rs.bk
+*.pdb
+
+# Cargo.lock: mantido versionado (binário/aplicação).
+# Se algum crate virar biblioteca publicada, ignore-o só lá.
+
+# Cobertura e profiling
+*.profraw
+*.profdata
+/coverage
+tarpaulin-report.*
+
+# Ferramentas Rust
+.cargo/config.local.toml
+/flamegraph.svg
+/perf.data*
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows (alvo de distribuição)
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.directory
+
+# Editores / IDEs
+.idea/
+*.iml
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+*.swp
+*.swo
+
+# Ambiente e segredos
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Dados sensíveis de clientes (sigilo OAB/LGPD) — nunca versionar
+/data
+*.sqlite
+*.sqlite3
+*.db
+*.db-shm
+*.db-wal
+/exports
+/backups
+*.timesheet.json
+
+# Logs e temporários
+*.log
+/tmp
+
+# AI
+/docs
