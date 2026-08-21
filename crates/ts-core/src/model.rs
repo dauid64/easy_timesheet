@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct FocusSample {
     pub mono_ms: u64,          // relogio monotônico, contador que só cresce
     pub app: String,           // nome do app
